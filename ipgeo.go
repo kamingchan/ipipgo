@@ -12,7 +12,7 @@ var (
 )
 
 const (
-	ipipResponseLen = 5
+	responseLen = 5
 )
 
 type IPGeo struct {
@@ -25,25 +25,25 @@ type IPGeo struct {
 	ISP string
 }
 
-func GetGeo(ip string) (*IPGeo, error) {
-	_ip := net.ParseIP(ip)
-	if _ip == nil {
+func GetGeo(ipStr string) (*IPGeo, error) {
+	ip := net.ParseIP(ipStr)
+	if ip == nil {
 		return nil, ErrInvalidIP
 	}
-	res, err := httpGet("http://freeapi.ipip.net/" + ip)
+	res, err := httpGet("http://freeapi.ipip.net/" + ipStr)
 	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
-	var resp []string
+	resp := make([]string, responseLen)
 	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
 		return nil, ErrDecode
 	}
-	if len(resp) != ipipResponseLen {
+	if len(resp) != responseLen {
 		return nil, ErrDecode
 	}
 	return &IPGeo{
-		IP:       &_ip,
+		IP:       &ip,
 		Country:  resp[0],
 		Province: resp[1],
 		City:     resp[2],
