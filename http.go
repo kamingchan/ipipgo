@@ -8,7 +8,13 @@ func SetClient(c *http.Client) {
 	client = c
 }
 
-var header = http.Header{}
+var header = func() http.Header {
+	h := http.Header{}
+	h.Set("Accept", "*/*")
+	h.Set("Accept-Language", "zh-cn")
+	h.Set("User-Agent", "BestTrace/Mac V1.30")
+	return h
+}()
 
 func SetHeader(h http.Header) {
 	header = h
