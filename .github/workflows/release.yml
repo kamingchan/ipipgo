@@ -1,8 +1,8 @@
-name: Go
+name: Releases
 on: [push]
 jobs:
-  build:
-    name: Build
+  releases:
+    name: Releases
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go 1.14
@@ -23,8 +23,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files:
-            - bin/ipipgo-linux.gz
-            - bin/ipipgo-macos.gz
-            - bin/ipipgo-win32.zip
-            - bin/ipipgo-win64.zip
+          files: |
+            bin/ipipgo-linux.gz
+            bin/ipipgo-macos.gz
+            bin/ipipgo-win32.zip
+            bin/ipipgo-win64.zip
