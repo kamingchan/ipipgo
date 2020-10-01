@@ -1,7 +1,7 @@
 NAME=ipipgo
 BINDIR=bin
 GOBUILD=CGO_ENABLED=0 go build -ldflags '-w -s'
-MAIN=cli/main.go
+MAIN=ipip/main.go
 # The -w and -s flags reduce binary sizes by excluding unnecessary symbols and debug info
 
 all: linux macos win64 win32
