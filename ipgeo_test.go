@@ -13,7 +13,7 @@ func TestGetGeo(t *testing.T) {
 	if geo.Country == "" {
 		t.FailNow()
 	}
-	if geo.Province == "" {
+	if geo.Region == "" {
 		t.FailNow()
 	}
 	if geo.City == "" {

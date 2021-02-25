@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/kamingchan/ipipgo"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/kamingchan/ipipgo/v2"
 )
 
 func must(err error) {
@@ -35,5 +36,5 @@ func main() {
 	}
 	geo, err := ipipgo.GetGeo(ip)
 	must(err)
-	fmt.Printf("IP: %s\n%v\n%s\n", ip, strings.ToUpper(geo.String()), geo.AS)
+	fmt.Printf("IP: %s\n%v\nAS%d\n", ip, strings.ToUpper(geo.String()), geo.ASN)
 }
