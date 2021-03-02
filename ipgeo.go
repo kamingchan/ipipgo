@@ -1,32 +1,30 @@
 package ipipgo
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net"
-	"strconv"
 	"strings"
+
+	"github.com/tidwall/gjson"
 )
 
 var (
 	ErrInvalidIP = errors.New("invalid IP address")
-	ErrDecode    = errors.New("json decode failed")
-)
-
-const (
-	responseLen = 7
+	ErrNetwork   = errors.New("network error")
 )
 
 type IPGeo struct {
 	IP *net.IP
 
-	Country  string
-	Province string
-	City     string
+	Country     string
+	CountryCode string
+	Region      string
+	City        string
 
 	ISP string
-	AS  string
+	ASN int
 
 	Lat float64
 	Lon float64
@@ -37,8 +35,8 @@ func (geo *IPGeo) String() string {
 	if geo.Country != "" {
 		ls = append(ls, geo.Country)
 	}
-	if geo.Province != "" {
-		ls = append(ls, geo.Province)
+	if geo.Region != "" {
+		ls = append(ls, geo.Region)
 	}
 	if geo.City != "" {
 		ls = append(ls, geo.City)
@@ -49,44 +47,67 @@ func (geo *IPGeo) String() string {
 	return strings.Join(ls, "，")
 }
 
+func GetHostIP() (net.IP, error) {
+	resp, err := httpGet("https://api.ip.sb/ip")
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	ipStr := strings.TrimSpace(string(body))
+	ip := net.ParseIP(ipStr)
+	if ip == nil {
+		return nil, ErrInvalidIP
+	}
+	return ip, nil
+}
+
 func GetGeo(ipStr string) (*IPGeo, error) {
 	ip := net.ParseIP(ipStr)
 	if ip == nil {
 		return nil, ErrInvalidIP
 	}
-	url := fmt.Sprintf("https://btapi.ipip.net/host/info?lang=CN&ip=%s&host", ipStr)
+	url := fmt.Sprintf("https://api.ip.sb/geoip/%s", ipStr)
 	res, err := httpGet(url)
 	if err != nil {
 		return nil, err
 	}
 	defer res.Body.Close()
-	resp := make(map[string]interface{})
-	if err := json.NewDecoder(res.Body).Decode(&resp); err != nil {
-		return nil, ErrDecode
+	b, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, ErrNetwork
 	}
-	_as, ok := resp["as"]
-	if !ok {
-		return nil, ErrDecode
+	geo := new(IPGeo)
+	// parse asn
+	if asn := gjson.GetBytes(b, "asn"); asn.Exists() {
+		geo.ASN = int(asn.Int())
 	}
-	_area, ok := resp["area"]
-	if !ok {
-		return nil, ErrDecode
+	// parse lon, lat
+	if latitude := gjson.GetBytes(b, "latitude"); latitude.Exists() {
+		geo.Lat = latitude.Float()
 	}
-	area := _area.(string)
-	ls := strings.Split(area, "\t")
-	if len(ls) != responseLen {
-		return nil, ErrDecode
+	if longitude := gjson.GetBytes(b, "longitude"); longitude.Exists() {
+		geo.Lon = longitude.Float()
 	}
-	lat, _ := strconv.ParseFloat(ls[5], 64)
-	lon, _ := strconv.ParseFloat(ls[6], 64)
-	return &IPGeo{
-		AS:       _as.(string),
-		IP:       &ip,
-		Country:  ls[0],
-		Province: ls[1],
-		City:     ls[2],
-		ISP:      ls[4],
-		Lat:      lat,
-		Lon:      lon,
-	}, nil
+	// geo
+	if country := gjson.GetBytes(b, "country"); country.Exists() {
+		geo.Country = country.String()
+	}
+	if countryCode := gjson.GetBytes(b, "country_code"); countryCode.Exists() {
+		geo.CountryCode = countryCode.String()
+	}
+	if region := gjson.GetBytes(b, "region"); region.Exists() {
+		geo.Region = region.String()
+	}
+	if city := gjson.GetBytes(b, "city"); city.Exists() {
+		geo.City = city.String()
+	}
+	// isp
+	if isp := gjson.GetBytes(b, "isp"); isp.Exists() {
+		geo.ISP = isp.String()
+	}
+	return geo, nil
 }

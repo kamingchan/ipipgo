@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/kamingchan/ipipgo"
-	"io/ioutil"
 	"net"
-	"net/http"
 	"os"
 	"strings"
+
+	"github.com/kamingchan/ipipgo/v2"
 )
 
 func must(err error) {
@@ -20,14 +19,15 @@ func must(err error) {
 func main() {
 	var ip string
 	if len(os.Args) == 1 {
-		resp, err := http.Get("https://api.ip.sb/ip")
+		_ip, err := ipipgo.GetHostIP()
 		must(err)
-		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
-		must(err)
-		ip = string(body)
+		ip = _ip.String()
 	} else {
-		ip = os.Args[1]
+		host := os.Args[1]
+		ips, err := net.LookupIP(host)
+		must(err)
+		ip = ips[0].String()
+		fmt.Printf("NS: %s -> %s\n", host, ip)
 	}
 	ip = strings.TrimSpace(ip)
 	if net.ParseIP(ip) == nil {
@@ -35,5 +35,7 @@ func main() {
 	}
 	geo, err := ipipgo.GetGeo(ip)
 	must(err)
-	fmt.Printf("IP: %s\n%v\n%s\n", ip, strings.ToUpper(geo.String()), geo.AS)
+	fmt.Printf("IP: %s\n", ip)
+	fmt.Printf("GEO: %s\n", geo)
+	fmt.Printf("ASN: AS%d\n", geo.ASN)
 }
