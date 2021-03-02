@@ -23,7 +23,11 @@ func main() {
 		must(err)
 		ip = _ip.String()
 	} else {
-		ip = os.Args[1]
+		host := os.Args[1]
+		ips, err := net.LookupIP(host)
+		must(err)
+		ip = ips[0].String()
+		fmt.Printf("NS: %s -> %s\n", host, ip)
 	}
 	ip = strings.TrimSpace(ip)
 	if net.ParseIP(ip) == nil {
@@ -31,5 +35,7 @@ func main() {
 	}
 	geo, err := ipipgo.GetGeo(ip)
 	must(err)
-	fmt.Printf("IP: %s\n%v\nAS%d\n", ip, strings.ToUpper(geo.String()), geo.ASN)
+	fmt.Printf("IP: %s\n", ip)
+	fmt.Printf("GEO: %s\n", geo)
+	fmt.Printf("ASN: AS%d\n", geo.ASN)
 }
