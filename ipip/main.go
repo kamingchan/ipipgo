@@ -2,9 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net"
-	"net/http"
 	"os"
 	"strings"
 
@@ -21,12 +19,9 @@ func must(err error) {
 func main() {
 	var ip string
 	if len(os.Args) == 1 {
-		resp, err := http.Get("https://api.ip.sb/ip")
+		_ip, err := ipipgo.GetHostIP()
 		must(err)
-		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
-		must(err)
-		ip = string(body)
+		ip = _ip.String()
 	} else {
 		ip = os.Args[1]
 	}

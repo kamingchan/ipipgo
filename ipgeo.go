@@ -47,6 +47,24 @@ func (geo *IPGeo) String() string {
 	return strings.Join(ls, "，")
 }
 
+func GetHostIP() (net.IP, error) {
+	resp, err := httpGet("https://api.ip.sb/ip")
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	ipStr := strings.TrimSpace(string(body))
+	ip := net.ParseIP(ipStr)
+	if ip == nil {
+		return nil, ErrInvalidIP
+	}
+	return ip, nil
+}
+
 func GetGeo(ipStr string) (*IPGeo, error) {
 	ip := net.ParseIP(ipStr)
 	if ip == nil {
