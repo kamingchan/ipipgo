@@ -13,15 +13,6 @@ func TestGetGeo(t *testing.T) {
 	if geo.Country == "" {
 		t.FailNow()
 	}
-	if geo.Region == "" {
-		t.FailNow()
-	}
-	if geo.City == "" {
-		t.FailNow()
-	}
-	if geo.ISP == "" {
-		t.FailNow()
-	}
 	s := fmt.Sprintf("%v", geo)
 	if s == "" {
 		t.FailNow()

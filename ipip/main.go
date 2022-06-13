@@ -37,5 +37,5 @@ func main() {
 	must(err)
 	fmt.Printf("IP: %s\n", ip)
 	fmt.Printf("GEO: %s\n", geo)
-	fmt.Printf("ASN: AS%d\n", geo.ASN)
+	fmt.Printf("ASN: AS%d\n", geo.Asn)
 }
