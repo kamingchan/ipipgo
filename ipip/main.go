@@ -37,5 +37,6 @@ func main() {
 	must(err)
 	fmt.Printf("IP: %s\n", ip)
 	fmt.Printf("GEO: %s\n", geo)
-	fmt.Printf("ASN: AS%d\n", geo.Asn)
+	fmt.Printf("LOC: %.4f / %.4f https://www.openstreetmap.org/#map=12/%f/%f\n", geo.Latitude, geo.Longitude, geo.Latitude, geo.Longitude)
+	fmt.Printf("ASN: AS%d https://ipinfo.io/AS%d\n", geo.Asn, geo.Asn)
 }

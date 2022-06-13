@@ -8,7 +8,7 @@ import (
 	"net"
 	"strings"
 
-	"github.com/jayco/go-emoji-flag"
+	emojiflag "github.com/jayco/go-emoji-flag"
 )
 
 var (
@@ -18,9 +18,11 @@ var (
 type IPGeo struct {
 	Organization    string  `json:"organization"`
 	Longitude       float64 `json:"longitude"`
+	City            string  `json:"city"`
 	Timezone        string  `json:"timezone"`
 	Isp             string  `json:"isp"`
 	Offset          int     `json:"offset"`
+	Region          string  `json:"region"`
 	Asn             int     `json:"asn"`
 	AsnOrganization string  `json:"asn_organization"`
 	Country         string  `json:"country"`
@@ -28,17 +30,24 @@ type IPGeo struct {
 	Latitude        float64 `json:"latitude"`
 	ContinentCode   string  `json:"continent_code"`
 	CountryCode     string  `json:"country_code"`
+	RegionCode      string  `json:"region_code"`
 }
 
 func (geo *IPGeo) String() string {
 	var ls []string
 	if geo.Country != "" {
-		ls = append(ls, emojiflag.GetFlag(geo.CountryCode)+" "+geo.Country)
+		ls = append(ls, geo.Country+" "+emojiflag.GetFlag(geo.CountryCode))
+	}
+	if geo.Region != "" {
+		ls = append(ls, geo.Region)
+	}
+	if geo.City != "" {
+		ls = append(ls, geo.City)
 	}
 	if geo.AsnOrganization != "" {
 		ls = append(ls, geo.AsnOrganization)
 	}
-	return strings.Join(ls, "，")
+	return strings.Join(ls, " / ")
 }
 
 func GetHostIP() (net.IP, error) {
