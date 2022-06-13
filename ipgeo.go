@@ -44,8 +44,8 @@ func (geo *IPGeo) String() string {
 	if geo.City != "" {
 		ls = append(ls, geo.City)
 	}
-	if geo.AsnOrganization != "" {
-		ls = append(ls, geo.AsnOrganization)
+	if geo.Organization != "" {
+		ls = append(ls, geo.Organization)
 	}
 	return strings.Join(ls, " / ")
 }
