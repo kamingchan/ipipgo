@@ -7,7 +7,7 @@
 ## Install CLI
 
 ```bash
-go get github.com/kamingchan/ipipgo/v2/ipip
+go install github.com/kamingchan/ipipgo/v2/ipip@latest
 ```
 
 ## License
