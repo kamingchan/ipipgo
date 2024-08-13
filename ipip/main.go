@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"os"
@@ -24,15 +25,12 @@ func main() {
 		ip = _ip.String()
 	} else {
 		host := os.Args[1]
-		ips, err := net.LookupIP(host)
+		ips, err := net.DefaultResolver.LookupIPAddr(context.Background(), host)
 		must(err)
 		ip = ips[0].String()
 		fmt.Printf("NS: %s -> %s\n", host, ip)
 	}
 	ip = strings.TrimSpace(ip)
-	if net.ParseIP(ip) == nil {
-		must(fmt.Errorf("%s is not a valid IP address", ip))
-	}
 	geo, err := ipipgo.GetGeo(ip)
 	must(err)
 	fmt.Printf("IP: %s\n", ip)
